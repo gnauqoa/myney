@@ -1,0 +1,49 @@
+/* === Override Ionic theme to follow shadcn/ui colors === */
+
+/* Base (Light mode) */
+:root {
+  /* Background & Text */
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+
+  /* Colors */
+  --ion-color-primary: var(--primary);
+  --ion-color-primary-contrast: var(--primary-foreground);
+
+  --ion-color-secondary: var(--secondary);
+  --ion-color-secondary-contrast: var(--secondary-foreground);
+
+  --ion-color-tertiary: var(--accent);
+  --ion-color-tertiary-contrast: var(--accent-foreground);
+
+  --ion-color-success: var(--chart-2);
+  --ion-color-warning: var(--chart-4);
+  --ion-color-danger: var(--destructive);
+
+  /* Border & surfaces */
+  --ion-item-background: var(--card);
+  --ion-card-background: var(--card);
+}
+
+/* Dark Mode — controlled by .dark class (like shadcn/ui) */
+.dark {
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+
+  --ion-color-primary: var(--primary);
+  --ion-color-primary-contrast: var(--primary-foreground);
+
+  --ion-color-secondary: var(--secondary);
+  --ion-color-secondary-contrast: var(--secondary-foreground);
+
+  --ion-color-tertiary: var(--accent);
+  --ion-color-tertiary-contrast: var(--accent-foreground);
+
+  --ion-color-success: var(--chart-2);
+  --ion-color-warning: var(--chart-4);
+  --ion-color-danger: var(--destructive);
+
+  --ion-item-background: var(--card);
+  --ion-toolbar-background: var(--card);
+  --ion-card-background: var(--card);
+}

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">myney</string>
+    <string name="title_activity_main">myney</string>
+    <string name="package_name">com.myney.app</string>
+    <string name="custom_url_scheme">com.myney.app</string>
+    <string name="fab_desc">Floating action button</string>
+</resources>
