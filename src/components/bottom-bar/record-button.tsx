@@ -5,7 +5,7 @@ import { IonFab } from "@ionic/react";
 import { useState, useRef, useEffect } from "react";
 import { Microphone } from "@mozartec/capacitor-microphone";
 import type { Recording } from "@/types/recording";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useWallets } from "@/redux/hooks";
 import { addRecording } from "@/redux/slices/recordings";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,7 +14,7 @@ export const RecordBtn = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-
+  const { wallets } = useWallets();
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,6 +78,7 @@ export const RecordBtn = () => {
           createdAt: new Date().toISOString(),
           description: "Record",
           audioDataBase64: result.base64String,
+          walletId: wallets[0].id,
         };
         dispatch(addRecording(recording));
         console.log("Recording saved:", recording);

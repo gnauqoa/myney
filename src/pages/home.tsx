@@ -5,13 +5,11 @@ import {
   TransactionsList,
   AddTransactionDialog,
 } from "@/components/home";
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { useState, useMemo } from "react";
 import { useAppSelector, useTransactions } from "@/redux/hooks";
 import { RecordingType } from "@/types/recording";
 
 const HomePage = () => {
-  const { isDark, toggleDarkMode } = useDarkMode();
   const [addTransactionOpen, setAddTransactionOpen] = useState(false);
   const [defaultTransactionType, setDefaultTransactionType] =
     useState<RecordingType>(RecordingType.OUTCOME);
@@ -116,8 +114,6 @@ const HomePage = () => {
   return (
     <div className="h-full overflow-auto bg-background pb-24">
       <HomeHeader
-        isDark={isDark}
-        toggleDarkMode={toggleDarkMode}
         totalBalance={financialStats.totalBalance}
         monthlyIncome={financialStats.monthlyIncome}
         monthlyExpenses={financialStats.monthlyExpenses}
@@ -125,13 +121,12 @@ const HomePage = () => {
         onAddExpense={handleAddExpense}
       />
 
-      <div className="p-3 space-y-6 -mt-4">
+      <div className="p-3 space-y-6">
         <BudgetOverview categories={budgetCategories} />
         <TransactionsList onAddClick={() => setAddTransactionOpen(true)} />
         <RecordingsList />
       </div>
 
-      {/* Add Transaction Dialog */}
       <AddTransactionDialog
         open={addTransactionOpen}
         onOpenChange={setAddTransactionOpen}

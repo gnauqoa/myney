@@ -36,23 +36,20 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <>
-      {/* <LoadingModel /> */}
-      <IonApp className="bg-background">
-        <IonReactRouter>
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route exact path="/home">
-                <HomePage />
-              </Route>
-              <Redirect exact from="/" to="/home" />
-            </IonRouterOutlet>
-            <BottomBar />
-          </IonTabs>
-          <RecordBtn />
-        </IonReactRouter>
-      </IonApp>
-    </>
+    <IonApp className="bg-background">
+      <IonReactRouter>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route exact path="/home">
+              <HomePage />
+            </Route>
+            <Redirect exact from="/" to="/home" />
+          </IonRouterOutlet>
+          <BottomBar />
+        </IonTabs>
+        <RecordBtn />
+      </IonReactRouter>
+    </IonApp>
   );
 };
 

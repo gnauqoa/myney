@@ -22,3 +22,8 @@ export const useRecordings = () => {
     ),
   };
 };
+
+export const useWallets = () => {
+  const selector = useAppSelector((state) => state.wallets);
+  return selector;
+};

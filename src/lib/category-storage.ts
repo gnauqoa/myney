@@ -1,39 +1,45 @@
 // Local storage utilities for categories
-import type { Category } from "@/types/recording";
-import { DEFAULT_CATEGORIES } from "./constants";
-
-const STORAGE_KEY = "myney_categories";
-const SEED_FLAG_KEY = "myney_categories_seed_flag";
+import type { Category } from "@/types/category";
+import { DEFAULT_CATEGORIES, SEED_FLAG_KEY, STORAGE_CATEGORIES_KEY } from "./constants";
 
 // Get all categories from local storage
 export const getCategories = (): Category[] => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(STORAGE_CATEGORIES_KEY);
     if (!data) return [];
     const categories = JSON.parse(data);
 
     // Convert IDs to strings for backward compatibility and normalize
-    const normalizedCategories: Category[] = categories.map((category: Category | { id: string | number; name: string }) => ({
-      ...category,
-      id: String(category.id),
-    }));
+    const normalizedCategories: Category[] = categories.map(
+      (category: Category | { id: string | number; name: string }) => ({
+        ...category,
+        id: String(category.id),
+      })
+    );
 
     // Remove duplicates by ID (keep the first occurrence)
     const seenIds = new Set<string>();
-    const uniqueCategories = normalizedCategories.filter((category: Category) => {
-      if (seenIds.has(category.id)) {
-        console.warn(
-          `Duplicate category ID found: ${category.id}, removing duplicate`
-        );
-        return false;
+    const uniqueCategories = normalizedCategories.filter(
+      (category: Category) => {
+        if (seenIds.has(category.id)) {
+          console.warn(
+            `Duplicate category ID found: ${category.id}, removing duplicate`
+          );
+          return false;
+        }
+        seenIds.add(category.id);
+        return true;
       }
-      seenIds.add(category.id);
-      return true;
-    });
+    );
 
     // If we found duplicates or needed normalization, save the cleaned version
-    if (uniqueCategories.length !== categories.length || 
-        categories.some((c: Category | { id: string | number; name: string }) => typeof c.id !== 'string')) {
+    if (
+      uniqueCategories.length !== categories.length ||
+      categories.some(
+        (c: Category | { id: string | number; name: string }) =>
+          typeof c.id !== "string"
+      )
+    ) {
       saveCategoriesToStorage(uniqueCategories);
     }
 
@@ -47,7 +53,7 @@ export const getCategories = (): Category[] => {
 // Save categories array to storage (used by Redux)
 export const saveCategoriesToStorage = (categories: Category[]): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+    localStorage.setItem(STORAGE_CATEGORIES_KEY, JSON.stringify(categories));
   } catch (error) {
     console.error("Error saving categories:", error);
   }

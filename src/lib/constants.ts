@@ -33,6 +33,11 @@ export const DEFAULT_CATEGORIES = [
   "shopping",
   "other",
 ];
+export const SEED_FLAG_KEY = "seed_flag";
+export const STORAGE_CATEGORIES_KEY = "myney_categories";
+export const STORAGE_WALLETS_KEY = "myney_wallets";
+export const STORAGE_RECORDINGS_KEY = "myney_recordings";
+
 export default {
   SAMPLING_RATE: 16000,
   DEFAULT_AUDIO_URL:

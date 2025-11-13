@@ -117,14 +117,13 @@ export const TransactionsList = ({ onAddClick }: TransactionsListProps) => {
             >
               {selectMode ? "Cancel" : "Select"}
             </Button>
-            <Button onClick={onAddClick} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add
+            <Button onClick={onAddClick} size="sm" className="">
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent>
         {selectMode && (
           <div className="flex items-center gap-2 pb-2 px-3">
             <Checkbox

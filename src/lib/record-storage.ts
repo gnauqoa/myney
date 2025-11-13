@@ -1,7 +1,6 @@
 // Local storage utilities for recordings
 import type { Recording } from "@/types/recording";
-
-const STORAGE_KEY = "myney_recordings";
+import { STORAGE_RECORDINGS_KEY } from "./constants";
 
 // Get all recordings from local storage
 
@@ -25,7 +24,7 @@ export const updateRecording = (
 
 export const getRecordings = (): Recording[] => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(STORAGE_RECORDINGS_KEY);
     if (!data) return [];
     const recordings = JSON.parse(data);
 
@@ -57,7 +56,7 @@ export const getRecordings = (): Recording[] => {
 // Save recordings array to storage (used by Redux)
 export const saveRecordingsToStorage = (recordings: Recording[]): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(recordings));
+    localStorage.setItem(STORAGE_RECORDINGS_KEY, JSON.stringify(recordings));
   } catch (error) {
     console.error("Error saving recordings:", error);
   }

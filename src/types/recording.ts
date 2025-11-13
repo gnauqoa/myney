@@ -3,11 +3,6 @@ export enum RecordingType {
   OUTCOME = "outcome",
 }
 
-export type Category = {
-  id: string;
-  name: string;
-};
-
 export interface Recording {
   id: string;
   duration: number;
@@ -17,6 +12,7 @@ export interface Recording {
   categoryId?: string;
   amount?: number;
   description?: string;
+  walletId: string;
   createdAt: string;
 }
 

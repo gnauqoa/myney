@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { Category } from "@/types/recording";
+import type { Category } from "@/types/category";
 import {
   getCategories,
   saveCategory,

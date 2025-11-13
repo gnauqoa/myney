@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -21,7 +20,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useAppDispatch, useAppSelector, useWallets } from "@/redux/hooks";
 import { addRecording } from "@/redux/slices/recordings";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
@@ -38,6 +45,7 @@ const transactionSchema = z.object({
     }),
   categoryId: z.string().min(1, "Please select a category"),
   description: z.string().optional(),
+  walletId: z.string().min(1, "Please select a wallet"),
 });
 
 type TransactionFormData = z.infer<typeof transactionSchema>;
@@ -57,41 +65,33 @@ export const AddTransactionDialog = ({
 }: AddTransactionDialogProps) => {
   const dispatch = useAppDispatch();
   const categories = useAppSelector((state) => state.categories.categories);
+  const { wallets } = useWallets();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    setValue,
-    watch,
-  } = useForm<TransactionFormData>({
+  const form = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: RecordingType.OUTCOME,
       amount: "",
-      categoryId: categories[0].id.toString(),
+      categoryId: categories[0]?.id.toString() || "",
       description: "",
+      walletId: wallets[0]?.id || "",
     },
   });
-
-  const type = watch("type");
-  const categoryId = watch("categoryId");
 
   // Set default type when dialog opens with a pre-selected type
   useEffect(() => {
     if (open && defaultType) {
-      setValue("type", defaultType);
+      form.setValue("type", defaultType);
     }
-  }, [open, defaultType, setValue]);
+  }, [open, defaultType, form]);
 
   // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
-      reset();
+      form.reset();
       onClose?.();
     }
-  }, [open, reset, onClose]);
+  }, [open, form, onClose]);
 
   const onSubmit = (data: TransactionFormData) => {
     dispatch(
@@ -100,6 +100,7 @@ export const AddTransactionDialog = ({
         categoryId: data.categoryId,
         type: data.type as RecordingType,
         description: data.description || "",
+        walletId: data.walletId,
         createdAt: dayjs().toISOString(),
         id: uuidv4(),
         duration: 0,
@@ -108,7 +109,7 @@ export const AddTransactionDialog = ({
       })
     );
 
-    reset();
+    form.reset();
     onOpenChange(false);
   };
 
@@ -125,126 +126,195 @@ export const AddTransactionDialog = ({
             Add a new income or expense transaction
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="type">
-              Type <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={type}
-              onValueChange={(value) =>
-                setValue("type", value as RecordingType)
-              }
-            >
-              <SelectTrigger
-                id="type"
-                className={errors.type ? "border-destructive" : ""}
-              >
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={RecordingType.INCOME}>Income</SelectItem>
-                <SelectItem value={RecordingType.OUTCOME}>Outcome</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.type && (
-              <p className="text-sm text-destructive">{errors.type.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="amount">
-              Amount <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              {...register("amount")}
-              autoFocus
-              className={errors.amount ? "border-destructive" : ""}
-            />
-            {errors.amount && (
-              <p className="text-sm text-destructive">
-                {errors.amount.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category">
-              Category <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={categoryId}
-              onValueChange={(value) => setValue("categoryId", value)}
-            >
-              <SelectTrigger
-                id="category"
-                className={errors.categoryId ? "border-destructive" : ""}
-              >
-                <SelectValue
-                  placeholder="Select category"
-                  className="capitalize"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem
-                    className="capitalize"
-                    key={category.id}
-                    value={category.id.toString()}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Type <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
                   >
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoryId && (
-              <p className="text-sm text-destructive">
-                {errors.categoryId.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              placeholder="Add a description..."
-              {...register("description")}
-              rows={3}
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={RecordingType.INCOME}>
+                        Income
+                      </SelectItem>
+                      <SelectItem value={RecordingType.OUTCOME}>
+                        Outcome
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.description && (
-              <p className="text-sm text-destructive">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
 
-          <DialogFooter>
-            <div className="flex flex-row gap-3 w-full overflow-hidden">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                className="w-full flex-1"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="w-full flex-1"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Adding..." : "Confirm"}
-              </Button>
-            </div>
-          </DialogFooter>
-        </form>
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => {
+                const numericValue = field.value
+                  ? field.value.replace(/[^\d]/g, "")
+                  : "";
+
+                const formattedValue = numericValue
+                  ? new Intl.NumberFormat("vi-VN").format(Number(numericValue))
+                  : "";
+
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Số tiền <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          autoFocus
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          className="pr-8 text-left"
+                          value={formattedValue}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^\d]/g, "");
+                            field.onChange(raw);
+                          }}
+                        />
+                      </FormControl>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        ₫
+                      </span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Category <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="capitalize">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={category.id}
+                          value={category.id.toString()}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="walletId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Wallet <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder="Select wallet"
+                          className="capitalize"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {wallets.map((wallet) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={wallet.id}
+                          value={wallet.id.toString()}
+                        >
+                          {wallet.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add a description..."
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <div className="flex flex-row gap-3 w-full overflow-hidden">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  className="w-full flex-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-full flex-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? "Adding..." : "Confirm"}
+                </Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
